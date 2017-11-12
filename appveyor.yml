@@ -1,0 +1,32 @@
+#
+# appveyor.yml
+#
+#
+
+version: 0.0.1.{build}
+
+branches:
+  only:
+    - master
+
+image: Visual Studio 2015
+
+build_script:
+  - choco install opencover.portable
+  - choco install codecov
+  - dotnet build
+
+test_script:
+  - OpenCover.Console.exe -register:user -target:"C:\Program Files\dotnet\dotnet.exe" -targetargs:"test Api.Tests" -output:".\coverage.xml" -oldStyle
+  - codecov -f "coverage.xml"
+
+notifications:
+  - provider: Webhook
+    url: https://webhooks.gitter.im/e/c0f1a9403568c24a0ce7
+    method: POST
+    on_build_success: true
+    on_build_failure: true
+    on_build_status_changed: true
+
+  - provider: Slack
+    incoming_webhook: https://hooks.slack.com/services/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
